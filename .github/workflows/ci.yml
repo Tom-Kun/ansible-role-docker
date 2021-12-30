@@ -47,7 +47,6 @@ jobs:
           - debian11
           - debian10
           - debian9
-          - fedora35
           - fedora34
 
     steps:
