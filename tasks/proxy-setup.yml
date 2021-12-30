@@ -1,0 +1,42 @@
+---
+- name: setup docker http proxy configuration
+  block:
+    - name: check if systemd drop-in directory exists for docker service
+      stat: "path={{ docker_systemd_service_path }}"
+      register: docker_systemd_service_folder
+
+    - name: create a systemd drop-in directory for the docker service
+      file:
+        path: "{{ docker_systemd_service_path }}"
+        state: directory
+        mode: 0755
+        owner: root
+        group: root
+        recurse: true
+      when: not(docker_systemd_service_folder.stat.exists | bool)
+
+    - name: copy docker proxy configuration
+      template:
+        src: http-proxy.conf.j2
+        dest: "{{ docker_systemd_service_path }}/http-proxy.conf"
+        owner: root
+        group: root
+        mode: 0644
+      register: docker_proxy_present
+      notify: restart docker
+  become: true
+  when:
+    - docker_proxy.enabled | bool
+
+- name: remove docker proxy configuration
+  block:
+    - name: check if a proxy configuration exists
+      stat: "path={{ docker_systemd_service_path }}//http-proxy.conf"
+      register: docker_http_proxy_file
+
+    - name: remove docker proxy configuration file
+      file: "path={{ docker_systemd_service_path }}//http-proxy.conf state=absent"
+      notify: restart docker
+      when: docker_http_proxy_file.stat.exists | bool
+  become: true
+  when: not(docker_proxy.enabled | bool)

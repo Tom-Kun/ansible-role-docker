@@ -1,0 +1,42 @@
+---
+- name: test
+  debug:
+    msg: "{{ ansible_virtualization_type }}"
+
+- include_tasks: setup-RedHat.yml
+  when: ansible_os_family == 'RedHat'
+
+- include_tasks: setup-Debian.yml
+  when: ansible_os_family == 'Debian'
+
+- name: Install Docker.
+  package:
+    name: "{{ docker_package }}"
+    state: "{{ docker_package_state }}"
+  notify: restart docker
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: Ensure /etc/docker/ directory exists.
+  file:
+    path: /etc/docker
+    state: directory
+    mode: 0755
+    owner: root
+    group: root
+
+- name: copy docker daemon configuration
+  template:
+    src: docker-daemon.json.j2
+    dest: /etc/docker/daemon.json
+    owner: root
+    group: root
+    mode: 0640
+  notify:
+    - restart docker
+
+- include_tasks: grub-limit
+  when: ansible_os_family == 'Debian'
+
+- include_tasks: docker-users.yml
+  tags:
+    - users

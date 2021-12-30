@@ -1,0 +1,15 @@
+{
+{% if docke_insecure_registries is defined %}
+  "insecure-registries": {{ docker_insecure_registries | tojson }},
+{% endif %}
+{% if docker_mirror_registries is defined %}
+  "registry-mirrors": {{ docker_mirror_registries | tojson }},
+{% endif %}
+  "log-driver": {{ docker_daemon_log_driver | tojson }},
+  "log-opts": {
+    "max-file": {{ docker_daemon_log_opts_max_file | tojson }},,
+    "max-size": "{{ docker_daemon_log_opts_max_size | tojson }}"
+  },
+  "metrics-addr": "{{ ansible_default_ipv4.address }}:9323",
+  "experimental": {{ docker_daemon_experimental | lower }}
+}

@@ -1,0 +1,35 @@
+---
+dependencies: []
+
+galaxy_info:
+  role_name: docker
+  author: tomkun
+  description: Install Docker for Linux systems.
+  license: "license (BSD, MIT)"
+  min_ansible_version: 2.1
+  platforms:
+  - name: EL
+    versions:
+    - 7
+    - 8
+  - name: Fedora
+    versions:
+    - all
+  - name: Ubuntu
+    versions:
+    - focal
+    - bionic
+    - xenial
+  - name: Debian
+    versions:
+    - bullseye
+    - buster
+    - stretch
+
+  galaxy_tags:
+  - docker
+  - system
+  - containers
+  - docker
+  - orchestration
+  - compose

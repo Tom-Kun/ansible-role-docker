@@ -1,0 +1,19 @@
+---
+- name: setting grub memory limit
+  lineinfile:
+    path: /etc/default/grub
+    regexp: "^GRUB_CMDLINE_LINUX_DEFAULT"
+    line: 'GRUB_CMDLINE_LINUX_DEFAULT="cgroup_enable=memory swapaccount=1"'
+  register: grub_updated
+  when: docker_set_grub_memory_limit | bool
+
+- name: updating grub (if updated)
+  command: update-grub
+  when: grub_updated['changed']
+
+- name: reboot the system when there is changes on GRUB
+  reboot:
+    msg: 'The /etc/default/grub file has been changed and a reboot is required! The system will reboot.'
+  when:
+    - grub_updated['changed']
+    - docker_reboot_system | bool
